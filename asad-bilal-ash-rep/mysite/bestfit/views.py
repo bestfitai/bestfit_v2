@@ -1,14 +1,13 @@
-from django.shortcuts import render
 from django.core.mail import BadHeaderError, send_mail
 from django.http import HttpResponse
 from django.core.mail import EmailMessage
-
-from .models import Registerations, ProfileEdit
+from django.shortcuts import render, redirect
+from django.contrib.auth.models import User
+from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
+from django.views.generic import TemplateView
+from .models import Registerations, ProfileEdit
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import redirect
-from django.db import connection
-
 from django.db import connection
 
 # def profile(request):
@@ -33,6 +32,25 @@ from django.db import connection
 @login_required()
 def profile(request):
     return render(request, 'profile.html')
+
+def home(request):
+    count = User.objects.count()
+    return render(request, 'home.html', {
+        'count': count
+    })
+
+
+def signup(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('home')
+    else:
+        form = UserCreationForm()
+    return render(request, 'registration/signup.html', {
+        'form': form
+    })
 
 
 def index(request):
